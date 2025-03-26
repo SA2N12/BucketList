@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello WishController!
+{% endblock %}
+
+{% block body %}
+
+	<div class="container mt-4">
+		<div class="row">
+			<div class="col-md-8 offset-md-2">
+				<div class="card shadow p-3">
+					<form method="post" action="{{ path('_update-wish', {'id': wish.id}) }}">
+						<div class="mb-3">
+							<label for="title" class="form-label">Titre</label>
+							<input type="text" class="form-control" id="title" name="title" value="{{ wish.title }}" required>
+						</div>
+						<div class="mb-3">
+							<label for="description" class="form-label">Description</label>
+							<textarea class="form-control" id="description" name="description" rows="3">{{ wish.description }}</textarea>
+						</div>
+						<div class="mb-3">
+							<label for="author" class="form-label">Auteur</label>
+							<input type="text" class="form-control" id="author" name="author" value="{{ wish.author }}" required>
+						</div>
+						<button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+						<a href="{{ path('_wishes') }}" class="btn btn-secondary">Annuler</a>
+					</form>
+					<form method="post" action="{{ path('_delete-wish', {'id': wish.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce wish ?');">
+						<button type="submit" class="btn btn-danger mt-2">Supprimer</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
