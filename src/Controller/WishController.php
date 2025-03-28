@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Wish;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class WishController extends AbstractController
 {
@@ -16,31 +17,18 @@ final class WishController extends AbstractController
     #[Route('/voeux/creer', name: '_create-wish')]
     public function createWish(Request $request, EntityManagerInterface $em): Response
     {
-        if ($request->isMethod('POST')) {
-            //récupérer les données du formulaire
-            $title = $request->request->get('title');
-            $description = $request->request->get('description');
-            $author = $request->request->get('author');
-
-            //nouvel objet wish
-            $wish = new Wish();
-            $wish->setTitle($title);
-            $wish->setDescription($description);
-            $wish->setAuthor($author);
-            $wish->setDateCreated(new \DateTime());
-            $wish->setIsPublished(1);
-
-            //envoyer l'objet en bdd
+        $wish = new Wish();
+        $form = $this->createForm(\App\Form\WishType::class, $wish);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($wish);
             $em->flush();
-
-            //rediriger vers la liste des voeux
             return $this->redirectToRoute('_wishes');
         }
-
-        //afficher le formulaire
+    
         return $this->render('wish/create-wish.html.twig', [
-            'controller_name' => 'WishController',
+            'form' => $form->createView(),
         ]);
     }
 
@@ -60,58 +48,68 @@ final class WishController extends AbstractController
     public function showWishDetails(int $id, WishRepository $wishRepository): Response
     {
         $wish = $wishRepository->find($id);
+        if (!$wish) {
+            throw $this->createNotFoundException('Le wish demandé n\'existe pas.');
+        }
+
+        // Création du formulaire basé sur WishType pour affichage
+        $form = $this->createForm(\App\Form\WishType::class, $wish);
 
         return $this->render('wish/wish-detail.html.twig', [
             'controller_name' => 'WishController',
             'id' => $id,
             'wish' => $wish,
+            'form' => $form->createView()
         ]);
     }
 
     //Update
     #[Route('/voeux/modifier/{id}', name: '_update-wish')]
-    public function updateWish(int $id, Request $request, EntityManagerInterface $em, WishRepository $wishRepository): Response
-    {
-        //récupérer le voeu à modifier
+    public function updateWish(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        WishRepository $wishRepository,
+        ValidatorInterface $validator
+    ): Response {
         $wish = $wishRepository->find($id);
-
-        //le voeu n'est pas trouvé
         if (!$wish) {
-            throw $this->createNotFoundException('Ce voeu n\'existe pas');
+            throw $this->createNotFoundException('Le wish demandé n\'existe pas.');
         }
 
-        //si le formulaire est soumis
-        if ($request->isMethod('POST')) {
-            //récupérer le voeu
-            $title = $request->request->get('title');
-            $description = $request->request->get('description');
-            $author = $request->request->get('author');
+        // Initialiser $validationErrors à un tableau vide
+        $validationErrors = [];
 
-            //mettre à jour le voeu
-            $wish->setTitle($title);
-            $wish->setDescription($description);
-            $wish->setAuthor($author);
+        // Création du formulaire basé sur WishType et traitement de la requête
+        $form = $this->createForm(\App\Form\WishType::class, $wish);
+        $form->handleRequest($request);
 
-            //sauvegarder les modifications
-            $em->flush();
-
-            //redirection
-            return $this->redirectToRoute('_wishes');
+        if ($form->isSubmitted()) {
+            // Validation via le form builder ainsi que les contraintes de l'entité
+            $validationErrors = $validator->validate($wish);
+            if ($form->isValid() && count($validationErrors) === 0) {
+                $em->flush();
+                return $this->redirectToRoute('_wishes');
+            }
         }
 
-        // Afficher le formulaire avec les données existantes
-        return $this->render('wish/update-wish.html.twig', [
+        return $this->render('wish/wish-detail.html.twig', [
             'wish' => $wish,
+            'form' => $form->createView(),
+            'errors' => $validationErrors  // Passer les erreurs à la vue
         ]);
     }
 
-    #[Route('/voeux/modifier/{id}', name: '_delete-wish')]
+    #[Route('/voeux/supprimer/{id}', name: '_delete-wish', methods: ['POST'])]
     public function deleteWish(int $id, EntityManagerInterface $em, WishRepository $wishRepository): Response
     {
         $wish = $wishRepository->find($id);
-
+        if (!$wish) {
+            throw $this->createNotFoundException('Le wish demandé n\'existe pas.');
+        }
         $em->remove($wish);
         $em->flush();
+        $this->addFlash('success', 'Le wish a été supprimé avec succès.');
 
         return $this->redirectToRoute('_wishes');
     }

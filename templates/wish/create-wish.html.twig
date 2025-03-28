@@ -1,25 +1,17 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Créer un nouveau Wish
-{% endblock %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
 
 {% block body %}
 	<div class="container mt-4">
 		<h1>Créer un nouveau voeu</h1>
-		<form method="post" action="{{ path('_create-wish') }}">
-			<div class="mb-3">
-				<label for="title" class="form-label">Titre</label>
-				<input type="text" class="form-control" id="title" name="title" required>
-			</div>
-			<div class="mb-3">
-				<label for="description" class="form-label">Description</label>
-				<textarea class="form-control" id="description" name="description" rows="3"></textarea>
-			</div>
-			<div class="mb-3">
-				<label for="author" class="form-label">Auteur</label>
-				<input type="text" class="form-control" id="author" name="author" required>
-			</div>
-			<button type="submit" class="btn btn-primary">Créer</button>
-		</form>
+
+		{{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+
+		{{ form_row(form.title) }}
+		{{ form_row(form.description) }}
+		{{ form_row(form.author) }}
+		{{ form_row(form.save, {'attr': {'class': 'btn btn-primary mt-3'}}) }}
+
+		{{ form_end(form) }}
 	</div>
 {% endblock %}

@@ -5,32 +5,36 @@ namespace App\Entity;
 use App\Repository\WishRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: WishRepository::class)]
 class Wish
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "Le titre est obligatoire.")]
     private ?string $title = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\NotBlank(message: "La description est obligatoire.")]
     private ?string $description = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "L'auteur est obligatoire.")]
     private ?string $author = null;
 
-    #[ORM\Column]
-    private ?bool $isPublished = null;
+    #[ORM\Column(type: 'datetime')]
+    private \DateTime $dateCreated;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $dateCreated = null;
+    #[ORM\Column(type: 'datetime')]
+    private \DateTime $dateUpdated;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $dateUpdated = null;
+    #[ORM\Column(type: 'boolean')]
+    private bool $isPublished;
 
     public function getId(): ?int
     {
