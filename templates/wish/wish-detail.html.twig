@@ -10,14 +10,25 @@
 				<div class="card shadow p-3">
 					<h1 class="card-title">Modifier le Wish</h1>
 
-                    {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
-                    
-                    {{ form_row(form.title) }}
-                    {{ form_row(form.description) }}
-                    {{ form_row(form.author) }}
-                    {{ form_row(form.save, {'attr': {'class': 'btn btn-primary mt-3'}}) }}
-                    
-                    {{ form_end(form) }}
+					{{ form_start(form, {
+        				'action': path('_update-wish', {'id': wish.id}),
+        				'method': 'POST'
+    				}) }}
+					<div class="card mt-2 mb-2 w-50 m-auto">
+						{% if wish.filename is not null %}
+							<img src="{{ asset(app_images_wish_directory ~ '/' ~ wish.filename) }}" class="card-img-top img-fluid" alt="image"/>
+						{% endif %}
+					</div>
+					{{ form_row(form.title) }}
+					{{ form_row(form.description) }}
+					{{ form_row(form.author) }}
+					{{ form_row(form.save, {'attr': {'class': 'btn btn-primary mt-3'}}) }}
+					<div class="d-flex">
+						<div class="col-sm-9">
+							{{ form_row(form.image) }}
+						</div>
+					</div>
+					{{ form_end(form) }}
 
 					<form method="post" action="{{ path('_delete-wish', {'id': wish.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce wish ?');">
 						<button type="submit" class="btn btn-danger mt-2">Supprimer</button>

@@ -9,7 +9,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\Image;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Category;
 
 class WishType extends AbstractType
 {
@@ -33,6 +36,25 @@ class WishType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
                 'empty_data' => '',
+            ])
+            ->add('image', FileType::class, [
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                new Image([
+                    'maxSize' => '1024k',
+                    'mimeTypes' => [
+                    'image/jpeg',
+                    'image/png',
+                    ],
+                    'mimeTypesMessage' => 'Please upload a valid image',
+                ]),
+                    ],
+            ])
+            ->add('category', EntityType::class, [
+                'class' => Category::class,
+                'choice_label' => 'name',
+                'required' => true
             ])
             ->add('save', SubmitType::class, [
                 'label' => 'Enregistrer',

@@ -3,11 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\WishRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: WishRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Wish
 {
     #[ORM\Id]
@@ -34,7 +34,27 @@ class Wish
     private \DateTime $dateUpdated;
 
     #[ORM\Column(type: 'boolean')]
-    private bool $isPublished;
+    private bool $isPublished = true;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $filename = null;
+
+    #[ORM\PrePersist]
+    public function initializeDates(): void
+    {
+        $this->dateCreated = new \DateTime();
+        $this->dateUpdated = new \DateTime();
+    }
+
+    #[ORM\PreUpdate]
+    public function updateDate(): void
+    {
+        $this->dateUpdated = new \DateTime();
+    }
+
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'wishes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
 
     public function getId(): ?int
     {
@@ -110,6 +130,29 @@ class Wish
     {
         $this->dateUpdated = $dateUpdated;
 
+        return $this;
+    }
+
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    public function setFilename(?string $filename): static
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
         return $this;
     }
 }
