@@ -31,12 +31,12 @@ class WishType extends AbstractType
                 'attr' => ['class' => 'form-control'],
                 'empty_data' => '', // Ceci transforme null en chaîne vide
             ])
-            ->add('author', TextType::class, [
-                'label' => 'Auteur',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-                'empty_data' => '',
-            ])
+            // ->add('author', TextType::class, [
+            //     'label' => 'Auteur',
+            //     'required' => false,
+            //     'attr' => ['class' => 'form-control'],
+            //     'empty_data' => '',
+            // ])
             ->add('image', FileType::class, [
                 'mapped' => false,
                 'required' => false,

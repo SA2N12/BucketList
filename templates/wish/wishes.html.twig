@@ -25,29 +25,50 @@
 					<div class="card-body">
 						<div class="list-group">
 							{% for wish in wishes %}
-								<a href={{path('_wish-details', {'id': wish.id})}} class="text-decoration-none">
-									<div class="list-group-item">
-										<h5 class="mb-1">
-											<span class="text-muted">{{ wish.id }}</span>
-											-
-											{{ wish.title }}
-										</h5>
-										<p class="mb-1">{{ wish.category.name }}</p>
-										<p class="mb-1">{{ wish.description }}</p>
-										<small>
-											{{ wish.author }}
-											le
-											{{ wish.dateCreated|date('d/m/Y') }}
-										</small>
+								<div class="list-group-item">
+									<div
+										class="d-flex justify-content-between align-items-start flex-wrap">
+										<!-- Bloc texte à gauche -->
+										<div class="me-3 flex-grow-1">
+											<h5 class="mb-1">{{ wish.title }}</h5>
+											<p class="mb-1">{{ wish.category.name }}</p>
+											<p class="mb-1">{{ wish.description }}</p>
+											<small>
+												{{ wish.author }}
+												le
+												{{ wish.dateCreated|date('d/m/Y') }}
+											</small>
+
+											<div class="mt-2 d-flex align-items-center">
+												<a href="{{ path('_wish-details', {'id': wish.id}) }}" class="text-decoration-none mb-1 me-2">voir</a>
+												{% if app.user and (wish.author == app.user.userIdentifier) %}
+													<a href="{{ path('_wish-details-modify', {'id': wish.id}) }}" class="text-decoration-none mb-1">modifier</a>
+												{% endif %}
+											</div>
+
+											<div class="mt-2 d-flex align-items-center">
+												<form method="post" action="{{ path('_delete-wish', {'id': wish.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce wish ?');">
+													<button type="submit" class="btn btn-danger mt-2 me-2">Supprimer</button>
+												</form>
+												<a href="{{ path('_add-comment', {'id': wish.id}) }}" class="btn btn-primary mt-2">Ajouter un commentaire</a>
+											</div>
+										</div>
+
+										<!-- Bloc image à droite -->
+										{% if wish.filename is not null %}
+											<div>
+												<img src="{{ asset(app_images_wish_directory ~ '/' ~ wish.filename) }}" class="img-fluid mt-2" alt="image" style="max-height: 200px; width: auto;">
+											</div>
+										{% endif %}
 									</div>
-								</a>
+								</div>
 							{% endfor %}
 						</div>
 					</div>
 					<div class="card-footer">
-                        <a href="{{ path('_create-wish') }}" class="btn btn-primary text-decoration-none">
-                            Ajouter un nouveau voeu
-                        </a>
+						<a href="{{ path('_create-wish') }}" class="btn btn-primary text-decoration-none">
+							Ajouter un nouveau voeu
+						</a>
 					</div>
 				</div>
 			</div>

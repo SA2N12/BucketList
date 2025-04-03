@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\WishRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: WishRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -39,6 +40,43 @@ class Wish
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $filename = null;
 
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'wishes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
+
+    #[ORM\OneToMany(mappedBy: 'wish', targetEntity: Comment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $comments;
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): static
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setWish($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): static
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getWish() === $this) {
+                $comment->setWish(null);
+            }
+        }
+
+        return $this;
+    }
+
     #[ORM\PrePersist]
     public function initializeDates(): void
     {
@@ -51,10 +89,6 @@ class Wish
     {
         $this->dateUpdated = new \DateTime();
     }
-
-    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'wishes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Category $category = null;
 
     public function getId(): ?int
     {

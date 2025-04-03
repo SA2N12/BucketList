@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block body %}
+	<div class="container mt-4">
+		<h1>Ajouter un commentaire</h1>
+		{{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+		{{ form_widget(form) }}
+		<button type="submit" class="btn btn-primary mt-3">Envoyer</button>
+		{{ form_end(form) }}
+	</div>
+{% endblock %}

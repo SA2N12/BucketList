@@ -8,7 +8,7 @@
 		<div class="row justify-content-center">
 			<div class="col-md-8">
 				<div class="card shadow p-3">
-					<h1 class="card-title">Détail du Wish</h1>
+					<h1 class="card-title">Modifier le Wish</h1>
 
 					{{ form_start(form, {
         				'action': path('_update-wish', {'id': wish.id}),
@@ -19,15 +19,19 @@
 							<img src="{{ asset(app_images_wish_directory ~ '/' ~ wish.filename) }}" class="card-img-top img-fluid" alt="image"/>
 						{% endif %}
 					</div>
-					{{ form_row(form.title, {'attr': {'readonly': true}}) }}
-					{{ form_row(form.description, {'attr': {'readonly': true}}) }}
-					{{ form_end(form, {'render_rest': false}) }}
+					{{ form_row(form.title) }}
+					{{ form_row(form.description) }}
+					{{ form_row(form.save, {'attr': {'class': 'btn btn-primary mt-3'}}) }}
+					<div class="d-flex">
+						<div class="col-sm-9">
+							{{ form_row(form.image) }}
+						</div>
+					</div>
+					{{ form_end(form) }}
 
-					{% if app.user and (wish.author == app.user.userIdentifier or 'ROLE_ADMIN' in app.user.roles) %}
-						<form method="post" action="{{ path('_delete-wish', {'id': wish.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce wish ?');">
-							<button type="submit" class="btn btn-danger mt-2">Supprimer</button>
-						</form>
-					{% endif %}
+					<form method="post" action="{{ path('_delete-wish', {'id': wish.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce wish ?');">
+						<button type="submit" class="btn btn-danger mt-2">Supprimer</button>
+					</form>
 				</div>
 				<div class="card shadow p-3 mt-4">
 					<h1 class="card-title">Commentaires</h1>
